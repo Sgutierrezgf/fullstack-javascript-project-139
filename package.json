@@ -1,0 +1,25 @@
+{
+  "name": "fullstack-javascript-project-139",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/Sgutierrezgf/fullstack-javascript-project-139/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Sgutierrezgf/fullstack-javascript-project-139/actions)",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "start": "start-server ./frontend/build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sgutierrezgf/fullstack-javascript-project-139.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sgutierrezgf/fullstack-javascript-project-139/issues"
+  },
+  "homepage": "https://github.com/Sgutierrezgf/fullstack-javascript-project-139#readme",
+  "dependencies": {
+    "@hexlet/chat-server": "^2.0.4"
+  }
+}
