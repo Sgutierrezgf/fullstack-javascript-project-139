@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { addChannel, renameChannel, removeChannel, setCurrentChannelId } from '../store';
@@ -119,6 +120,7 @@ const RemoveChannelModal = ({
         timeout: 10000,
       });
       dispatch(removeChannel({ id: channel.id }));
+      toast.success(t('channelRemoved'));
       onHide();
     } catch (error) {
       setStatus(t('removeChannelFailed'));
@@ -190,6 +192,7 @@ export const ChannelModals = ({
             });
             dispatch(addChannel(response.data));
             dispatch(setCurrentChannelId(response.data.id));
+            toast.success(t('channelCreated'));
             onHide();
           } catch (error) {
             setFieldError('name', t('networkError'));
@@ -218,6 +221,7 @@ export const ChannelModals = ({
               timeout: 10000,
             });
             dispatch(renameChannel(response.data));
+            toast.success(t('channelRenamed'));
             onHide();
           } catch (error) {
             setFieldError('name', t('networkError'));

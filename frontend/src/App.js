@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { ToastContainer, toast } from 'react-toastify';
 import { io } from 'socket.io-client';
 import {
   BrowserRouter,
@@ -15,6 +16,7 @@ import {
 } from 'react-router-dom';
 import * as Yup from 'yup';
 import ChannelModals from './components/ChannelModals';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import {
   addChannel,
@@ -190,6 +192,12 @@ const HomePage = () => {
   useEffect(() => {
     dispatch(fetchChatData(auth.token));
   }, [auth.token, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(t(error));
+    }
+  }, [error, t]);
 
   useEffect(() => {
     const socket = io();
@@ -494,6 +502,7 @@ function App() {
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
+          <ToastContainer position="top-right" />
         </div>
       </BrowserRouter>
     </AuthProvider>
