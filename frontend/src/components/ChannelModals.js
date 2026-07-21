@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { addChannel, renameChannel, removeChannel, setCurrentChannelId } from '../store';
+import { cleanProfanity } from '../utils/profanity';
 
 const getChannelNameSchema = (t, channels, currentName = '') => Yup.object({
   name: Yup.string()
@@ -186,7 +187,9 @@ export const ChannelModals = ({
         onHide={onHide}
         onSubmit={async ({ name }, { setSubmitting, setFieldError }) => {
           try {
-            const response = await axios.post('/api/v1/channels', { name: name.trim() }, {
+            const response = await axios.post('/api/v1/channels', {
+              name: cleanProfanity(name.trim()),
+            }, {
               headers: { Authorization: `Bearer ${token}` },
               timeout: 10000,
             });
@@ -215,7 +218,7 @@ export const ChannelModals = ({
         onSubmit={async ({ name }, { setSubmitting, setFieldError }) => {
           try {
             const response = await axios.patch(`/api/v1/channels/${channel.id}`, {
-              name: name.trim(),
+              name: cleanProfanity(name.trim()),
             }, {
               headers: { Authorization: `Bearer ${token}` },
               timeout: 10000,

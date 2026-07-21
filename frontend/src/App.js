@@ -26,6 +26,7 @@ import {
   renameChannel,
   setCurrentChannelId,
 } from './store';
+import { cleanProfanity } from './utils/profanity';
 
 const AuthContext = createContext(null);
 
@@ -235,7 +236,7 @@ const HomePage = () => {
 
     try {
       const response = await axios.post('/api/v1/messages', {
-        body: messageText,
+        body: cleanProfanity(messageText),
         channelId: currentChannelId,
         username: auth.username,
       }, {
