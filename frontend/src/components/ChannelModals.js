@@ -71,6 +71,7 @@ const ChannelNameModal = ({
                 {({ field }) => (
                   <input
                     {...field}
+                    aria-label={t('channelName')}
                     disabled={isSubmitting}
                     id="channelName"
                     ref={inputRef}

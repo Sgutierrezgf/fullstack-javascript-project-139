@@ -134,19 +134,20 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
   }, []);
 
   return (
-    <div className="channel-menu" ref={menuRef}>
+    <div className="channel-menu dropdown" ref={menuRef}>
       <button
         aria-expanded={open}
         aria-label={t('channelManage')}
-        className="channel-menu-toggle"
+        className="channel-menu-toggle dropdown-toggle"
         onClick={() => setOpen((value) => !value)}
         type="button"
       >
         ▾
       </button>
       {open && (
-        <div className="channel-menu-dropdown">
+        <div className="channel-menu-dropdown dropdown-menu show">
           <button
+            className="dropdown-item"
             onClick={() => {
               setOpen(false);
               onRename(channel.id);
@@ -156,6 +157,7 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
             {t('rename')}
           </button>
           <button
+            className="dropdown-item"
             onClick={() => {
               setOpen(false);
               onRemove(channel.id);
