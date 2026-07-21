@@ -328,6 +328,7 @@ const HomePage = () => {
         <form className="message-form" onSubmit={handleSubmit}>
           <label className="visually-hidden" htmlFor="message">{t('newMessage')}</label>
           <input
+            aria-label={t('newMessage')}
             autoFocus
             disabled={sending}
             id="message"
