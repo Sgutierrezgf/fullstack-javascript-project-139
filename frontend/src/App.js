@@ -142,6 +142,7 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
         onClick={() => setOpen((value) => !value)}
         type="button"
       >
+        <span className="visually-hidden">{t('channelManage')}</span>
         ▾
       </button>
       {open && (
