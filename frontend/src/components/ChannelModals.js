@@ -112,7 +112,11 @@ const RemoveChannelModal = ({
   }, []);
 
   const handleRemove = async (event) => {
-    event.preventDefault();
+    event?.preventDefault?.();
+    if (submitting) {
+      return;
+    }
+
     setSubmitting(true);
     setStatus(null);
 
@@ -126,42 +130,49 @@ const RemoveChannelModal = ({
       onHide();
     } catch (error) {
       setStatus(t('removeChannelFailed'));
-    } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" onClick={onHide} role="presentation">
+    <div className="modal-backdrop modal fade show" onClick={onHide} role="presentation" style={{ display: 'flex' }}>
       <div
         aria-modal="true"
-        className="modal-window"
+        className="modal-window modal-dialog modal-dialog-centered"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
       >
-        <div className="modal-header">
-          <h2>{t('removeChannelTitle')}</h2>
-          <button aria-label={t('close')} className="modal-close" onClick={onHide} type="button">
-            ×
-          </button>
-        </div>
-        <form className="modal-form" onSubmit={handleRemove}>
-          <p>{t('areYouSure')}</p>
-          {status && <div className="error">{status}</div>}
-          <div className="modal-actions">
-            <button disabled={submitting} onClick={onHide} type="button">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2 className="modal-title">{t('removeChannelTitle')}</h2>
+            <button aria-label={t('close')} className="modal-close btn-close" onClick={onHide} type="button">
+              ×
+            </button>
+          </div>
+          <div className="modal-body">
+            <p>{t('areYouSure')}</p>
+            {status && <div className="error">{status}</div>}
+          </div>
+          <div className="modal-actions modal-footer">
+            <button
+              className="btn btn-secondary"
+              disabled={submitting}
+              onClick={onHide}
+              type="button"
+            >
               {t('cancel')}
             </button>
             <button
-              className="danger"
+              className="danger btn btn-danger"
               disabled={submitting}
+              onClick={handleRemove}
               ref={confirmRef}
-              type="submit"
+              type="button"
             >
               {t('remove')}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
