@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Dropdown } from 'react-bootstrap';
+import { Button, ButtonGroup, Dropdown } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { ToastContainer, toast } from 'react-toastify';
@@ -119,36 +119,33 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-const ChannelMenu = ({ channel, onRename, onRemove }) => {
+const ChannelMenu = ({ channel, isActive, onChoose, onRename, onRemove }) => {
   const { t } = useTranslation();
+  const variant = isActive ? 'secondary' : 'light';
 
   return (
-    <Dropdown className="channel-menu" align="end">
+    <Dropdown as={ButtonGroup} className="channel-menu d-flex w-100">
+      <Button
+        className="channel w-100 rounded-0 text-start text-truncate"
+        onClick={onChoose}
+        variant={variant}
+      >
+        <span className="channel-name">{`# ${channel.name}`}</span>
+      </Button>
       <Dropdown.Toggle
         aria-label={t('channelManage')}
-        className="channel-menu-toggle dropdown-toggle"
+        className="channel-menu-toggle dropdown-toggle flex-grow-0"
         id={`channel-menu-${channel.id}`}
-        variant="light"
+        split
+        variant={variant}
       >
         <span className="visually-hidden">{t('channelManage')}</span>
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        <Dropdown.Item
-          href="#"
-          onClick={(event) => {
-            event.preventDefault();
-            onRemove(channel.id);
-          }}
-        >
+        <Dropdown.Item as="button" onClick={() => onRemove(channel.id)} type="button">
           {t('remove')}
         </Dropdown.Item>
-        <Dropdown.Item
-          href="#"
-          onClick={(event) => {
-            event.preventDefault();
-            onRename(channel.id);
-          }}
-        >
+        <Dropdown.Item as="button" onClick={() => onRename(channel.id)} type="button">
           {t('rename')}
         </Dropdown.Item>
       </Dropdown.Menu>
@@ -261,81 +258,86 @@ const HomePage = () => {
   }
 
   return (
-    <main className="chat-page">
-      <aside className="channels">
-        <div className="channels-header">
-          <h2>{t('channels')}</h2>
-          <button
-            aria-label={t('addChannel')}
-            className="add-channel-btn"
-            onClick={() => setModal({ type: 'add' })}
-            type="button"
-          >
-            {t('addChannel')}
-          </button>
-        </div>
-        <ul className="channels-list">
-          {channels.map((channel) => {
-            const isActive = String(channel.id) === String(currentChannelId);
+    <>
+      <main className="chat-page">
+        <aside className="channels">
+          <div className="channels-header">
+            <h2>{t('channels')}</h2>
+            <button
+              aria-label={t('addChannel')}
+              className="add-channel-btn"
+              onClick={() => setModal({ type: 'add' })}
+              type="button"
+            >
+              {t('addChannel')}
+            </button>
+          </div>
+          <ul className="channels-list">
+            {channels.map((channel) => {
+              const isActive = String(channel.id) === String(currentChannelId);
 
-            return (
-              <li key={channel.id}>
-                <div className={isActive ? 'channel-row active' : 'channel-row'}>
-                  <button
-                    className="channel"
-                    onClick={() => dispatch(setCurrentChannelId(channel.id))}
-                    type="button"
-                  >
-                    <span className="channel-name">{`# ${channel.name}`}</span>
-                  </button>
-                  {channel.removable && (
+              return (
+                <li key={channel.id}>
+                  {channel.removable ? (
                     <ChannelMenu
                       channel={channel}
+                      isActive={isActive}
+                      onChoose={() => dispatch(setCurrentChannelId(channel.id))}
                       onRemove={(channelId) => setModal({ type: 'remove', channelId })}
                       onRename={(channelId) => setModal({ type: 'rename', channelId })}
                     />
+                  ) : (
+                    <div className={isActive ? 'channel-row active' : 'channel-row'}>
+                      <button
+                        className="channel"
+                        onClick={() => dispatch(setCurrentChannelId(channel.id))}
+                        type="button"
+                      >
+                        <span className="channel-name">{`# ${channel.name}`}</span>
+                      </button>
+                    </div>
                   )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
-      <section className="chat">
-        <header className="chat-header">
-          <h2 className="channel-name">{`# ${currentChannel?.name ?? 'general'}`}</h2>
-        </header>
-        <div className="messages">
-          {currentMessages.map((message) => (
-            <p className="message" key={message.id}>
-              <b>{message.username}</b>
-              {`: ${message.body}`}
-            </p>
-          ))}
-        </div>
-        <form className="message-form" onSubmit={handleSubmit}>
-          <label className="visually-hidden" htmlFor="message">{t('newMessage')}</label>
-          <input
-            aria-label={t('newMessage')}
-            autoFocus
-            disabled={sending}
-            id="message"
-            name="body"
-            onChange={(event) => setMessageText(event.target.value)}
-            placeholder={t('enterMessage')}
-            type="text"
-            value={messageText}
-          />
-          <button disabled={sending} type="submit">{t('send')}</button>
-          {sendError && <span className="error">{sendError}</span>}
-        </form>
-      </section>
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
+        <section className="chat">
+          <header className="chat-header">
+            <h2 className="channel-name">{`# ${currentChannel?.name ?? 'general'}`}</h2>
+          </header>
+          <div className="messages">
+            {currentMessages.map((message) => (
+              <p className="message" key={message.id}>
+                <b>{message.username}</b>
+                {`: ${message.body}`}
+              </p>
+            ))}
+          </div>
+          <form className="message-form" onSubmit={handleSubmit}>
+            <label className="visually-hidden" htmlFor="message">{t('newMessage')}</label>
+            <input
+              aria-label={t('newMessage')}
+              autoFocus
+              disabled={sending}
+              id="message"
+              name="body"
+              onChange={(event) => setMessageText(event.target.value)}
+              placeholder={t('enterMessage')}
+              type="text"
+              value={messageText}
+            />
+            <button disabled={sending} type="submit">{t('send')}</button>
+            {sendError && <span className="error">{sendError}</span>}
+          </form>
+        </section>
+      </main>
       <ChannelModals
         modal={modal}
         onHide={() => setModal(null)}
         token={auth.token}
       />
-    </main>
+    </>
   );
 };
 
