@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Dropdown } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { ToastContainer, toast } from 'react-toastify';
@@ -16,6 +17,7 @@ import {
 } from 'react-router-dom';
 import * as Yup from 'yup';
 import ChannelModals from './components/ChannelModals';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import {
@@ -119,57 +121,38 @@ const PrivateRoute = ({ children }) => {
 
 const ChannelMenu = ({ channel, onRename, onRemove }) => {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
-    <div className="channel-menu dropdown" ref={menuRef}>
-      <button
-        aria-expanded={open}
+    <Dropdown className="channel-menu" align="end">
+      <Dropdown.Toggle
         aria-label={t('channelManage')}
         className="channel-menu-toggle dropdown-toggle"
-        onClick={() => setOpen((value) => !value)}
-        type="button"
+        id={`channel-menu-${channel.id}`}
+        variant="light"
       >
         <span className="visually-hidden">{t('channelManage')}</span>
-        ▾
-      </button>
-      {open && (
-        <div className="channel-menu-dropdown dropdown-menu show">
-          <button
-            className="dropdown-item"
-            onClick={() => {
-              setOpen(false);
-              onRename(channel.id);
-            }}
-            type="button"
-          >
-            {t('rename')}
-          </button>
-          <button
-            className="dropdown-item"
-            onClick={() => {
-              setOpen(false);
-              onRemove(channel.id);
-            }}
-            type="button"
-          >
-            {t('remove')}
-          </button>
-        </div>
-      )}
-    </div>
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item
+          href="#"
+          onClick={(event) => {
+            event.preventDefault();
+            onRemove(channel.id);
+          }}
+        >
+          {t('remove')}
+        </Dropdown.Item>
+        <Dropdown.Item
+          href="#"
+          onClick={(event) => {
+            event.preventDefault();
+            onRename(channel.id);
+          }}
+        >
+          {t('rename')}
+        </Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 };
 
@@ -184,7 +167,9 @@ const HomePage = () => {
     loading,
     error,
   } = useSelector((state) => state.chat);
-  const currentChannel = channels.find(({ id }) => id === currentChannelId);
+  const currentChannel = channels.find(
+    ({ id }) => String(id) === String(currentChannelId),
+  );
   const currentMessages = messages.filter(
     (message) => String(message.channelId) === String(currentChannelId),
   );
@@ -291,7 +276,7 @@ const HomePage = () => {
         </div>
         <ul className="channels-list">
           {channels.map((channel) => {
-            const isActive = channel.id === currentChannelId;
+            const isActive = String(channel.id) === String(currentChannelId);
 
             return (
               <li key={channel.id}>

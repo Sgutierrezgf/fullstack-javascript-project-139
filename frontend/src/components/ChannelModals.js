@@ -112,7 +112,7 @@ const RemoveChannelModal = ({
   }, []);
 
   const handleRemove = async (event) => {
-    event?.preventDefault?.();
+    event.preventDefault();
     if (submitting) {
       return;
     }
@@ -142,7 +142,7 @@ const RemoveChannelModal = ({
         onClick={(event) => event.stopPropagation()}
         role="dialog"
       >
-        <div className="modal-content">
+        <form className="modal-content" onSubmit={handleRemove}>
           <div className="modal-header">
             <h2 className="modal-title">{t('removeChannelTitle')}</h2>
             <button aria-label={t('close')} className="modal-close btn-close" onClick={onHide} type="button">
@@ -165,14 +165,13 @@ const RemoveChannelModal = ({
             <button
               className="danger btn btn-danger"
               disabled={submitting}
-              onClick={handleRemove}
               ref={confirmRef}
-              type="button"
+              type="submit"
             >
               {t('remove')}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
@@ -186,7 +185,9 @@ export const ChannelModals = ({
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const channels = useSelector((state) => state.chat.channels);
-  const channel = channels.find(({ id }) => id === modal?.channelId);
+  const channel = channels.find(
+    ({ id }) => String(id) === String(modal?.channelId),
+  );
 
   if (!modal) {
     return null;

@@ -33,7 +33,9 @@ const chatSlice = createSlice({
     },
     addMessage: (state, action) => {
       const message = action.payload;
-      const exists = state.messages.some(({ id }) => id === message.id);
+      const exists = state.messages.some(
+        ({ id }) => String(id) === String(message.id),
+      );
 
       if (!exists) {
         state.messages.push(message);
@@ -41,14 +43,18 @@ const chatSlice = createSlice({
     },
     addChannel: (state, action) => {
       const channel = action.payload;
-      const exists = state.channels.some(({ id }) => id === channel.id);
+      const exists = state.channels.some(
+        ({ id }) => String(id) === String(channel.id),
+      );
 
       if (!exists) {
         state.channels.push(channel);
       }
     },
     renameChannel: (state, action) => {
-      const channel = state.channels.find(({ id }) => id === action.payload.id);
+      const channel = state.channels.find(
+        ({ id }) => String(id) === String(action.payload.id),
+      );
 
       if (channel) {
         channel.name = action.payload.name;
@@ -56,7 +62,9 @@ const chatSlice = createSlice({
     },
     removeChannel: (state, action) => {
       const channelId = action.payload.id;
-      state.channels = state.channels.filter(({ id }) => id !== channelId);
+      state.channels = state.channels.filter(
+        ({ id }) => String(id) !== String(channelId),
+      );
       state.messages = state.messages.filter(
         ({ channelId: messageChannelId }) => String(messageChannelId) !== String(channelId),
       );
