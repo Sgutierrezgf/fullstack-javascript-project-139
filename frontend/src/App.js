@@ -201,7 +201,9 @@ const HomePage = () => {
   }, [error, t]);
 
   useEffect(() => {
-    const socket = io();
+    const socket = io({
+      forceNew: true,
+    });
 
     socket.on('newMessage', (message) => {
       dispatch(addMessage(message));
@@ -227,7 +229,8 @@ const HomePage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!messageText.trim() || !currentChannelId) {
+    const body = messageText.trim();
+    if (!body || !currentChannelId || sending) {
       return;
     }
 
@@ -236,7 +239,7 @@ const HomePage = () => {
 
     try {
       const response = await axios.post('/api/v1/messages', {
-        body: cleanProfanity(messageText),
+        body: cleanProfanity(body),
         channelId: currentChannelId,
         username: auth.username,
       }, {
@@ -246,7 +249,8 @@ const HomePage = () => {
       dispatch(addMessage(response.data));
       setMessageText('');
     } catch (err) {
-      setSendError(t('messageNotDelivered'));
+      setSendError(t('networkError'));
+      toast.error(t('networkError'));
     } finally {
       setSending(false);
     }
@@ -324,6 +328,7 @@ const HomePage = () => {
         <form className="message-form" onSubmit={handleSubmit}>
           <label className="visually-hidden" htmlFor="message">{t('newMessage')}</label>
           <input
+            autoFocus
             disabled={sending}
             id="message"
             name="body"
@@ -332,7 +337,7 @@ const HomePage = () => {
             type="text"
             value={messageText}
           />
-          <button disabled={sending || !messageText.trim()} type="submit">{t('send')}</button>
+          <button disabled={sending} type="submit">{t('send')}</button>
           {sendError && <span className="error">{sendError}</span>}
         </form>
       </section>

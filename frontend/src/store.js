@@ -69,7 +69,9 @@ const chatSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchChatData.pending, (state) => {
-        state.loading = true;
+        if (state.channels.length === 0) {
+          state.loading = true;
+        }
         state.error = null;
       })
       .addCase(fetchChatData.fulfilled, (state, action) => {
@@ -81,7 +83,9 @@ const chatSlice = createSlice({
         state.channels = channels;
         state.messages = messages;
         state.defaultChannelId = defaultChannelId;
-        state.currentChannelId = defaultChannelId;
+        if (!state.currentChannelId) {
+          state.currentChannelId = defaultChannelId;
+        }
         state.loading = false;
       })
       .addCase(fetchChatData.rejected, (state) => {
