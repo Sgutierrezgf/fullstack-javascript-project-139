@@ -147,7 +147,7 @@ const RemoveChannelModal = ({
           onClick={handleRemove}
           variant="danger"
         >
-          {t('remove')}
+          {t('confirm')}
         </Button>
       </Modal.Footer>
     </Modal>
