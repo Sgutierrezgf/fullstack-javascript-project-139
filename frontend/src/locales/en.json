@@ -31,7 +31,7 @@
   "haveAccount": "Already have an account?",
   "loginLink": "Log in",
   "invalidCredentials": "Username or password are incorrect",
-  "userExists": "This user already exists",
+  "userExists": "Username already taken",
   "registrationFailed": "Registration failed",
   "notFoundTitle": "404",
   "notFoundText": "Page not found.",
