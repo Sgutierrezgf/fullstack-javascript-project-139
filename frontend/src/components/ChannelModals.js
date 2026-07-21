@@ -1,21 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { addChannel, renameChannel, removeChannel, setCurrentChannelId } from '../store';
 
-const getChannelNameSchema = (channels, currentName = '') => Yup.object({
+const getChannelNameSchema = (t, channels, currentName = '') => Yup.object({
   name: Yup.string()
     .trim()
-    .required('Required')
-    .min(3, 'From 3 to 20 characters')
-    .max(20, 'From 3 to 20 characters')
+    .required(t('validation.required'))
+    .min(3, t('validation.channelNameLength'))
+    .max(20, t('validation.channelNameLength'))
     .notOneOf(
       channels
         .map(({ name }) => name)
         .filter((name) => name !== currentName),
-      'Must be unique',
+      t('validation.mustBeUnique'),
     ),
 });
 
@@ -27,10 +28,11 @@ const ChannelNameModal = ({
   onHide,
   onSubmit,
 }) => {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const validationSchema = useMemo(
-    () => getChannelNameSchema(channels, initialName),
-    [channels, initialName],
+    () => getChannelNameSchema(t, channels, initialName),
+    [t, channels, initialName],
   );
 
   useEffect(() => {
@@ -50,7 +52,7 @@ const ChannelNameModal = ({
       >
         <div className="modal-header">
           <h2>{title}</h2>
-          <button aria-label="Close" className="modal-close" onClick={onHide} type="button">
+          <button aria-label={t('close')} className="modal-close" onClick={onHide} type="button">
             ×
           </button>
         </div>
@@ -62,7 +64,7 @@ const ChannelNameModal = ({
         >
           {({ isSubmitting }) => (
             <Form className="modal-form">
-              <label className="visually-hidden" htmlFor="channelName">Channel name</label>
+              <label className="visually-hidden" htmlFor="channelName">{t('channelName')}</label>
               <Field name="name">
                 {({ field }) => (
                   <input
@@ -77,7 +79,7 @@ const ChannelNameModal = ({
               <ErrorMessage className="error" component="div" name="name" />
               <div className="modal-actions">
                 <button disabled={isSubmitting} onClick={onHide} type="button">
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button disabled={isSubmitting} type="submit">
                   {submitLabel}
@@ -96,6 +98,7 @@ const RemoveChannelModal = ({
   token,
   onHide,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const confirmRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
@@ -118,7 +121,7 @@ const RemoveChannelModal = ({
       dispatch(removeChannel({ id: channel.id }));
       onHide();
     } catch (error) {
-      setStatus('Failed to remove channel');
+      setStatus(t('removeChannelFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -133,17 +136,17 @@ const RemoveChannelModal = ({
         role="dialog"
       >
         <div className="modal-header">
-          <h2>Remove channel</h2>
-          <button aria-label="Close" className="modal-close" onClick={onHide} type="button">
+          <h2>{t('removeChannelTitle')}</h2>
+          <button aria-label={t('close')} className="modal-close" onClick={onHide} type="button">
             ×
           </button>
         </div>
         <form className="modal-form" onSubmit={handleRemove}>
-          <p>Are you sure?</p>
+          <p>{t('areYouSure')}</p>
           {status && <div className="error">{status}</div>}
           <div className="modal-actions">
             <button disabled={submitting} onClick={onHide} type="button">
-              Cancel
+              {t('cancel')}
             </button>
             <button
               className="danger"
@@ -151,7 +154,7 @@ const RemoveChannelModal = ({
               ref={confirmRef}
               type="submit"
             >
-              Remove
+              {t('remove')}
             </button>
           </div>
         </form>
@@ -165,6 +168,7 @@ export const ChannelModals = ({
   token,
   onHide,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const channels = useSelector((state) => state.chat.channels);
   const channel = channels.find(({ id }) => id === modal?.channelId);
@@ -188,13 +192,13 @@ export const ChannelModals = ({
             dispatch(setCurrentChannelId(response.data.id));
             onHide();
           } catch (error) {
-            setFieldError('name', 'Network error');
+            setFieldError('name', t('networkError'));
           } finally {
             setSubmitting(false);
           }
         }}
-        submitLabel="Submit"
-        title="Add channel"
+        submitLabel={t('submit')}
+        title={t('addChannelTitle')}
       />
     );
   }
@@ -216,13 +220,13 @@ export const ChannelModals = ({
             dispatch(renameChannel(response.data));
             onHide();
           } catch (error) {
-            setFieldError('name', 'Network error');
+            setFieldError('name', t('networkError'));
           } finally {
             setSubmitting(false);
           }
         }}
-        submitLabel="Submit"
-        title="Rename channel"
+        submitLabel={t('submit')}
+        title={t('renameChannelTitle')}
       />
     );
   }

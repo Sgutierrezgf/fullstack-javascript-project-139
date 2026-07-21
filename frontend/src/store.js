@@ -86,7 +86,7 @@ const chatSlice = createSlice({
       })
       .addCase(fetchChatData.rejected, (state) => {
         state.loading = false;
-        state.error = 'Failed to load chat data';
+        state.error = 'loadChatFailed';
       });
   },
 });

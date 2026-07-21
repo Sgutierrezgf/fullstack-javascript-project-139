@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import axios from 'axios';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
 import {
   BrowserRouter,
@@ -26,23 +27,23 @@ import {
 
 const AuthContext = createContext(null);
 
-const loginSchema = Yup.object({
-  username: Yup.string().required('Required'),
-  password: Yup.string().required('Required'),
+const getLoginSchema = (t) => Yup.object({
+  username: Yup.string().required(t('validation.required')),
+  password: Yup.string().required(t('validation.required')),
 });
 
-const signupSchema = Yup.object({
+const getSignupSchema = (t) => Yup.object({
   username: Yup.string()
     .trim()
-    .required('Required')
-    .min(3, 'From 3 to 20 characters')
-    .max(20, 'From 3 to 20 characters'),
+    .required(t('validation.required'))
+    .min(3, t('validation.usernameLength'))
+    .max(20, t('validation.usernameLength')),
   password: Yup.string()
-    .required('Required')
-    .min(6, 'Min 6 characters'),
+    .required(t('validation.required'))
+    .min(6, t('validation.passwordMin')),
   confirmPassword: Yup.string()
-    .required('Required')
-    .oneOf([Yup.ref('password')], 'Passwords must match'),
+    .required(t('validation.required'))
+    .oneOf([Yup.ref('password')], t('validation.passwordsMustMatch')),
 });
 
 const useAuth = () => useContext(AuthContext);
@@ -83,6 +84,7 @@ const AuthProvider = ({ children }) => {
 const Header = () => {
   const auth = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     auth.logOut();
@@ -91,10 +93,10 @@ const Header = () => {
 
   return (
     <header className="app-header">
-      <Link className="app-brand" to="/">Chat</Link>
+      <Link className="app-brand" to="/">{t('chat')}</Link>
       {auth.loggedIn && (
         <button className="logout-btn" onClick={handleLogout} type="button">
-          Log out
+          {t('logout')}
         </button>
       )}
     </header>
@@ -113,6 +115,7 @@ const PrivateRoute = ({ children }) => {
 };
 
 const ChannelMenu = ({ channel, onRename, onRemove }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -131,7 +134,7 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
     <div className="channel-menu" ref={menuRef}>
       <button
         aria-expanded={open}
-        aria-label="Channel manage"
+        aria-label={t('channelManage')}
         className="channel-menu-toggle"
         onClick={() => setOpen((value) => !value)}
         type="button"
@@ -147,7 +150,7 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
             }}
             type="button"
           >
-            Rename
+            {t('rename')}
           </button>
           <button
             onClick={() => {
@@ -156,7 +159,7 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
             }}
             type="button"
           >
-            Remove
+            {t('remove')}
           </button>
         </div>
       )}
@@ -165,6 +168,7 @@ const ChannelMenu = ({ channel, onRename, onRemove }) => {
 };
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const dispatch = useDispatch();
   const {
@@ -233,7 +237,7 @@ const HomePage = () => {
       dispatch(addMessage(response.data));
       setMessageText('');
     } catch (err) {
-      setSendError('Message was not delivered');
+      setSendError(t('messageNotDelivered'));
     } finally {
       setSending(false);
     }
@@ -242,7 +246,7 @@ const HomePage = () => {
   if (loading) {
     return (
       <main className="chat-page">
-        <p>Loading...</p>
+        <p>{t('loading')}</p>
       </main>
     );
   }
@@ -250,7 +254,7 @@ const HomePage = () => {
   if (error) {
     return (
       <main className="chat-page">
-        <p className="error">{error}</p>
+        <p className="error">{t(error)}</p>
       </main>
     );
   }
@@ -259,9 +263,9 @@ const HomePage = () => {
     <main className="chat-page">
       <aside className="channels">
         <div className="channels-header">
-          <h2>Channels</h2>
+          <h2>{t('channels')}</h2>
           <button
-            aria-label="Add channel"
+            aria-label={t('addChannel')}
             className="add-channel-btn"
             onClick={() => setModal({ type: 'add' })}
             type="button"
@@ -310,15 +314,15 @@ const HomePage = () => {
         </div>
         <form className="message-form" onSubmit={handleSubmit}>
           <input
-            aria-label="New message"
+            aria-label={t('newMessage')}
             disabled={sending}
             name="body"
             onChange={(event) => setMessageText(event.target.value)}
-            placeholder="Enter message..."
+            placeholder={t('enterMessage')}
             type="text"
             value={messageText}
           />
-          <button disabled={sending || !messageText.trim()} type="submit">Send</button>
+          <button disabled={sending || !messageText.trim()} type="submit">{t('send')}</button>
           {sendError && <span className="error">{sendError}</span>}
         </form>
       </section>
@@ -332,10 +336,12 @@ const HomePage = () => {
 };
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  const loginSchema = useMemo(() => getLoginSchema(t), [t]);
 
   if (auth.loggedIn) {
     return <Navigate to="/" replace />;
@@ -344,7 +350,7 @@ const LoginPage = () => {
   return (
     <main className="page">
       <section className="panel">
-        <h1>Log in</h1>
+        <h1>{t('loginTitle')}</h1>
         <Formik
           initialValues={{ username: '', password: '' }}
           validationSchema={loginSchema}
@@ -354,7 +360,7 @@ const LoginPage = () => {
               auth.logIn(response.data);
               navigate(from, { replace: true });
             } catch (error) {
-              setErrors({ auth: 'Invalid username or password' });
+              setErrors({ auth: t('invalidCredentials') });
             } finally {
               setSubmitting(false);
             }
@@ -362,20 +368,20 @@ const LoginPage = () => {
         >
           {({ errors, isSubmitting }) => (
             <Form className="form">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">{t('username')}</label>
               <Field id="username" name="username" type="text" />
               <ErrorMessage className="error" component="div" name="username" />
 
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">{t('password')}</label>
               <Field id="password" name="password" type="password" />
               <ErrorMessage className="error" component="div" name="password" />
 
               {errors.auth && <div className="error">{errors.auth}</div>}
-              <button disabled={isSubmitting} type="submit">Submit</button>
+              <button disabled={isSubmitting} type="submit">{t('submit')}</button>
               <p className="auth-link">
-                No account?
+                {t('noAccount')}
                 {' '}
-                <Link to="/signup">Registration</Link>
+                <Link to="/signup">{t('registration')}</Link>
               </p>
             </Form>
           )}
@@ -386,8 +392,10 @@ const LoginPage = () => {
 };
 
 const SignupPage = () => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const navigate = useNavigate();
+  const signupSchema = useMemo(() => getSignupSchema(t), [t]);
 
   if (auth.loggedIn) {
     return <Navigate to="/" replace />;
@@ -396,7 +404,7 @@ const SignupPage = () => {
   return (
     <main className="page">
       <section className="panel">
-        <h1>Sign up</h1>
+        <h1>{t('signupTitle')}</h1>
         <Formik
           initialValues={{ username: '', password: '', confirmPassword: '' }}
           validationSchema={signupSchema}
@@ -410,9 +418,9 @@ const SignupPage = () => {
               navigate('/', { replace: true });
             } catch (error) {
               if (error.response?.status === 409) {
-                setFieldError('username', 'This user already exists');
+                setFieldError('username', t('userExists'));
               } else {
-                setFieldError('username', 'Registration failed');
+                setFieldError('username', t('registrationFailed'));
               }
             } finally {
               setSubmitting(false);
@@ -421,15 +429,15 @@ const SignupPage = () => {
         >
           {({ isSubmitting }) => (
             <Form className="form">
-              <label htmlFor="signup-username">Username</label>
+              <label htmlFor="signup-username">{t('username')}</label>
               <Field autoComplete="username" id="signup-username" name="username" type="text" />
               <ErrorMessage className="error" component="div" name="username" />
 
-              <label htmlFor="signup-password">Password</label>
+              <label htmlFor="signup-password">{t('password')}</label>
               <Field autoComplete="new-password" id="signup-password" name="password" type="password" />
               <ErrorMessage className="error" component="div" name="password" />
 
-              <label htmlFor="signup-confirmPassword">Confirm password</label>
+              <label htmlFor="signup-confirmPassword">{t('confirmPassword')}</label>
               <Field
                 autoComplete="new-password"
                 id="signup-confirmPassword"
@@ -438,11 +446,11 @@ const SignupPage = () => {
               />
               <ErrorMessage className="error" component="div" name="confirmPassword" />
 
-              <button disabled={isSubmitting} type="submit">Submit</button>
+              <button disabled={isSubmitting} type="submit">{t('submit')}</button>
               <p className="auth-link">
-                Already have an account?
+                {t('haveAccount')}
                 {' '}
-                <Link to="/login">Log in</Link>
+                <Link to="/login">{t('loginLink')}</Link>
               </p>
             </Form>
           )}
@@ -452,15 +460,19 @@ const SignupPage = () => {
   );
 };
 
-const NotFoundPage = () => (
-  <main className="page">
-    <section className="panel">
-      <h1>404</h1>
-      <p>Page not found.</p>
-      <Link className="button" to="/">Go home</Link>
-    </section>
-  </main>
-);
+const NotFoundPage = () => {
+  const { t } = useTranslation();
+
+  return (
+    <main className="page">
+      <section className="panel">
+        <h1>{t('notFoundTitle')}</h1>
+        <p>{t('notFoundText')}</p>
+        <Link className="button" to="/">{t('goHome')}</Link>
+      </section>
+    </main>
+  );
+};
 
 function App() {
   return (
