@@ -122,9 +122,15 @@ const PrivateRoute = ({ children }) => {
 const ChannelMenu = ({ channel, isActive, onChoose, onRename, onRemove }) => {
   const { t } = useTranslation();
   const variant = isActive ? 'secondary' : 'light';
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <Dropdown as={ButtonGroup} className="channel-menu d-flex w-100">
+    <Dropdown
+      as={ButtonGroup}
+      className="channel-menu d-flex w-100"
+      onToggle={(nextShow) => setMenuOpen(nextShow)}
+      show={menuOpen}
+    >
       <Button
         className="channel w-100 rounded-0 text-start text-truncate"
         onClick={onChoose}
@@ -141,14 +147,30 @@ const ChannelMenu = ({ channel, isActive, onChoose, onRename, onRemove }) => {
       >
         <span className="visually-hidden">{t('channelManage')}</span>
       </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item as="button" onClick={() => onRemove(channel.id)} type="button">
-          {t('remove')}
-        </Dropdown.Item>
-        <Dropdown.Item as="button" onClick={() => onRename(channel.id)} type="button">
-          {t('rename')}
-        </Dropdown.Item>
-      </Dropdown.Menu>
+      {menuOpen && (
+        <Dropdown.Menu show>
+          <Dropdown.Item
+            as="button"
+            onClick={() => {
+              setMenuOpen(false);
+              onRemove(channel.id);
+            }}
+            type="button"
+          >
+            {t('remove')}
+          </Dropdown.Item>
+          <Dropdown.Item
+            as="button"
+            onClick={() => {
+              setMenuOpen(false);
+              onRename(channel.id);
+            }}
+            type="button"
+          >
+            {t('rename')}
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      )}
     </Dropdown>
   );
 };

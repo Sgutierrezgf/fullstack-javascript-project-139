@@ -132,7 +132,7 @@ const RemoveChannelModal = ({
   };
 
   return (
-    <Modal centered onHide={onHide} show>
+    <Modal animation={false} centered onHide={onHide} show>
       <Modal.Header closeButton>
         <Modal.Title>{t('removeChannelTitle')}</Modal.Title>
       </Modal.Header>
@@ -141,7 +141,12 @@ const RemoveChannelModal = ({
         <Button disabled={submitting} onClick={onHide} variant="secondary">
           {t('cancel')}
         </Button>
-        <Button disabled={submitting} onClick={handleRemove} variant="danger">
+        <Button
+          className="btn-danger"
+          disabled={submitting}
+          onClick={handleRemove}
+          variant="danger"
+        >
           {t('remove')}
         </Button>
       </Modal.Footer>
