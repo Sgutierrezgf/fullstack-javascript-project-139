@@ -279,7 +279,7 @@ const HomePage = () => {
             onClick={() => setModal({ type: 'add' })}
             type="button"
           >
-            +
+            {t('addChannel')}
           </button>
         </div>
         <ul className="channels-list">
@@ -322,9 +322,10 @@ const HomePage = () => {
           ))}
         </div>
         <form className="message-form" onSubmit={handleSubmit}>
+          <label className="visually-hidden" htmlFor="message">{t('newMessage')}</label>
           <input
-            aria-label={t('newMessage')}
             disabled={sending}
+            id="message"
             name="body"
             onChange={(event) => setMessageText(event.target.value)}
             placeholder={t('enterMessage')}
@@ -377,16 +378,16 @@ const LoginPage = () => {
         >
           {({ errors, isSubmitting }) => (
             <Form className="form">
-              <label htmlFor="username">{t('username')}</label>
-              <Field id="username" name="username" type="text" />
+              <label htmlFor="username">{t('nickname')}</label>
+              <Field autoComplete="username" id="username" name="username" type="text" />
               <ErrorMessage className="error" component="div" name="username" />
 
               <label htmlFor="password">{t('password')}</label>
-              <Field id="password" name="password" type="password" />
+              <Field autoComplete="current-password" id="password" name="password" type="password" />
               <ErrorMessage className="error" component="div" name="password" />
 
               {errors.auth && <div className="error">{errors.auth}</div>}
-              <button disabled={isSubmitting} type="submit">{t('submit')}</button>
+              <button disabled={isSubmitting} type="submit">{t('loginButton')}</button>
               <p className="auth-link">
                 {t('noAccount')}
                 {' '}
@@ -455,7 +456,7 @@ const SignupPage = () => {
               />
               <ErrorMessage className="error" component="div" name="confirmPassword" />
 
-              <button disabled={isSubmitting} type="submit">{t('submit')}</button>
+              <button disabled={isSubmitting} type="submit">{t('signupButton')}</button>
               <p className="auth-link">
                 {t('haveAccount')}
                 {' '}
